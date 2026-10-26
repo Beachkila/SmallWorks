@@ -392,9 +392,9 @@ const TagEngine = (() => {
   }
 
   function drawPanel(ctx, c) {
+    // square outer corners: the frame runs to the edge for trimming
     ctx.fillStyle = c.frame;
-    roundRect(ctx, 0, 0, W, FACE_H, 30);
-    ctx.fill();
+    ctx.fillRect(0, 0, W, FACE_H);
     ctx.fillStyle = c.face;
     roundRect(ctx, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r);
     ctx.fill();
