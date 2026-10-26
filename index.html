@@ -5,8 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Small Works | ACEO Tag Maker</title>
 <meta name="description" content="Make a folding tag for an ACEO or small artwork: title, artist, medium, edition, and a signature panel on the back.">
-<link rel="icon" href="data:,">
-<meta name="theme-color" content="#26231f">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Small Works">
+<meta name="theme-color" content="#000000">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
@@ -32,26 +36,95 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  .topbar { background: #26231f; }
-  .topbar .inner {
-    max-width: 960px;
+  /* Header matches studiowetware.com: black bar, icon left, centered title, menu right */
+  .sw-header { background: #000; color: #fff; }
+  .sw-header .inner {
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 14px 16px;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
   }
-  .wordmark {
-    font-family: Oswald, Arial, sans-serif;
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: 0.08em;
-    color: #fbf8f3;
+  .sw-header .logo img { display: block; width: 84px; height: 84px; }
+  .sw-header .title {
+    font-family: Jost, 'Century Gothic', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+    text-align: center;
+    color: #fff;
     text-decoration: none;
+    text-transform: uppercase;
   }
-  .topbar a.home { color: #d8d0c4; font-size: 14px; text-decoration: none; }
-  .topbar a.home:hover, .topbar a.home:focus-visible { text-decoration: underline; }
+  .sw-header .title .sub {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    color: #cfcfcf;
+  }
+  .sw-header .menu-btn {
+    justify-self: end;
+    background: none;
+    border: 0;
+    padding: 12px;
+    cursor: pointer;
+    color: #fff;
+  }
+  .sw-header .menu-btn svg { display: block; width: 36px; height: 36px; }
+  .sw-join {
+    display: block;
+    background: #000;
+    color: #fff;
+    border: 1px solid #fff;
+    text-align: center;
+    text-decoration: none;
+    font-family: Jost, 'Century Gothic', Arial, sans-serif;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+    padding: 14px 16px;
+    text-transform: uppercase;
+  }
+  .sw-join:hover, .sw-join:focus-visible { background: #1a1a1a; }
+  .sw-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 32px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s;
+    overflow-y: auto;
+  }
+  .sw-menu.open { opacity: 1; visibility: visible; }
+  .sw-menu .close { align-self: flex-end; background: none; border: 0; color: #fff; padding: 12px; cursor: pointer; }
+  .sw-menu .close svg { display: block; width: 32px; height: 32px; }
+  .sw-menu ul { list-style: none; margin: auto 0; padding: 0; text-align: center; }
+  .sw-menu li { margin: 18px 0; }
+  .sw-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-family: Jost, 'Century Gothic', Arial, sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .sw-menu a:hover, .sw-menu a:focus-visible { text-decoration: underline; }
+  body.menu-open { overflow: hidden; }
+  @media (max-width: 640px) {
+    .sw-header .inner { padding: 14px 16px; }
+    .sw-header .logo img { width: 64px; height: 64px; }
+    .sw-header .title { font-size: 24px; }
+    .sw-header .title .sub { font-size: 11px; }
+    .sw-join { font-size: 15px; }
+  }
   footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--muted); }
   footer a { color: var(--ink); }
 
@@ -216,15 +289,30 @@
 </style>
 </head>
 <body>
-<header class="topbar">
+<header class="sw-header">
   <div class="inner">
-    <span class="wordmark">SMALL WORKS</span>
-    <a class="home" href="https://studiowetware.com">Studio Wetware</a>
+    <a class="logo" href="https://studiowetware.com" aria-label="Studio Wetware home"><img src="https://i0.wp.com/studiowetware.com/wp-content/uploads/2026/08/30b31f5c-66ed-4292-89fa-3e65c4eb3958-edited-1.jpeg?w=240&ssl=1" alt="Studio Wetware"></a>
+    <a class="title" href="https://smallworks.studiowetware.com">Small Works<span class="sub">A Studio Wetware project</span></a>
+    <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sw-menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 9.5h14M5 14.5h14"/></svg>
+    </button>
   </div>
 </header>
+<a class="sw-join" href="https://network.studiowetware.com">Join the conversation<br>login @<br>The Cyanotype Network</a>
+<nav class="sw-menu" id="sw-menu" aria-label="Studio Wetware">
+  <button class="close" type="button" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <ul>
+    <li><a href="https://studiowetware.com/">Studio Wetware</a></li>
+    <li><a href="https://studiowetware.com/how-cyanotype-works/">Analog</a></li>
+    <li><a href="https://studiowetware.com/gitbeach/">Digital</a></li>
+    <li><a href="https://studiowetware.com/galleries/">Galleries</a></li>
+    <li><a href="https://network.studiowetware.com">The Cyanotype Network</a></li>
+  </ul>
+</nav>
 <main>
   <h1>Make a tag for your piece</h1>
-  <p class="intro">Fill in your piece's details, pick a layout and color, and download a folding tag. The front holds the details; the back is a line for your signature.</p>
 
   <div class="card">
     <div class="preview">
@@ -567,7 +655,21 @@ const TagEngine = (() => {
   const BRAND = {"top": "STUDIO WETWARE", "bottom": "SMALL WORKS"};
   const COLORS = {"terracotta": {"name": "Terracotta", "frame": "#c2562f", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#c2562f", "tabInk": "#ffffff", "band": "#a94a28", "bandInk": "#ffffff", "dot": "#c2562f"}, "ochre": {"name": "Ochre", "frame": "#d6a13a", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#a8791f", "tabInk": "#ffffff", "band": "#c4902e", "bandInk": "#26231f", "dot": "#d6a13a"}, "sage": {"name": "Sage", "frame": "#6e8b67", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#6e8b67", "tabInk": "#ffffff", "band": "#5d7857", "bandInk": "#ffffff", "dot": "#6e8b67"}, "plum": {"name": "Plum", "frame": "#6a3d5d", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#6a3d5d", "tabInk": "#ffffff", "band": "#57324c", "bandInk": "#ffffff", "dot": "#6a3d5d"}, "ink": {"name": "Ink", "frame": "#26231f", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#26231f", "tabInk": "#ffffff", "band": "#3a3631", "bandInk": "#ffffff", "dot": "#26231f"}};
 
-
+  // Header menu
+  (() => {
+    const btn = document.querySelector(".menu-btn");
+    const menu = document.getElementById("sw-menu");
+    const close = menu.querySelector(".close");
+    const set = (open) => {
+      menu.classList.toggle("open", open);
+      document.body.classList.toggle("menu-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      (open ? close : btn).focus();
+    };
+    btn.addEventListener("click", () => set(true));
+    close.addEventListener("click", () => set(false));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && menu.classList.contains("open")) set(false); });
+  })();
 
   const canvas = document.getElementById("canvas");
   const canvasBack = document.getElementById("canvasBack");
