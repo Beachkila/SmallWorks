@@ -192,6 +192,7 @@
   }
   #downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  .template-link { font-size: 14px; color: var(--ink); }
   #status { min-height: 18px; font-size: 13px; color: var(--muted); margin: 0; text-align: center; }
 
   @media (max-width: 640px) {
@@ -229,7 +230,7 @@
     <div class="preview">
       <canvas id="canvas" width="5600" height="1600" aria-label="Preview of the front of your tag" role="img"></canvas>
       <canvas id="canvasBack" width="5600" height="1600" aria-label="Preview of the signature back of your tag" role="img"></canvas>
-      <p class="preview-note">Front and signature back download as two separate files. The back is upside down so it reads the right way once folded.</p>
+      <p class="preview-note">Front and signature back download as two separate files, ready to drop into the print template.</p>
     </div>
 
     <div class="prefill" id="prefill" hidden>
@@ -278,6 +279,7 @@
     <div class="actions">
       <button id="downloadBtn" type="button" disabled>Download .JPG</button>
       <p id="status" role="status" aria-live="polite"></p>
+      <a class="template-link" href="tag-print-template.docx" download>Print template (.docx, 5 tags per page)</a>
     </div>
   </div>
   <footer>Small Works is a <a href="https://studiowetware.com">Studio Wetware</a> tool.</footer>
@@ -285,8 +287,8 @@
 
 <script>
 // Artist tag engine — shared by Small Works and The Cyanotype Network tag makers.
-// Draws a folding tag as two separate panels: the front, and the back signature panel
-// (rotated 180° so it reads upright once the printed tag is folded).
+// Draws a folding tag as two separate panels: the front, and the back signature panel.
+// Both are upright; the print template flips the back so it reads correctly once folded.
 const TagEngine = (() => {
   const W = 5600;          // same width as the Beach-Tag
   const FACE_H = 1600;     // each panel is 3.5 : 1
@@ -548,14 +550,10 @@ const TagEngine = (() => {
     else frontSlab(f, data, color, q);
     drawTab(f, color, brand);
 
-    // back, rotated so it reads upright after folding
+    // back, upright: the print template flips it so it reads correctly once folded
     const k = setup(backCanvas);
-    k.save();
-    k.translate(W, FACE_H);
-    k.rotate(Math.PI);
     drawPanel(k, color);
     back(k, data, color, layout);
-    k.restore();
 
     return { qrOk: !data.qr || !!q };
   }
@@ -625,6 +623,31 @@ const TagEngine = (() => {
     ready = true;
     downloadBtn.disabled = false;
     statusEl.textContent = result.qrOk ? "" : "That link is too long for a QR code. Try a shorter link.";
+    prepareFiles(token);
+  }
+
+  // Make the two JPGs ahead of time, so a tap can hand them to the phone's
+  // share sheet straight away (phones only allow that right after a tap).
+  let files = null;
+  function toBlob(c) {
+    return new Promise(resolve => c.toBlob(resolve, "image/jpeg", 0.95));
+  }
+  async function prepareFiles(token) {
+    files = null;
+    const [front, back] = await Promise.all([toBlob(canvas), toBlob(canvasBack)]);
+    if (token !== renderToken || !front || !back) return;
+    files = [
+      new File([front], FILENAME + "-front.jpg", { type: "image/jpeg" }),
+      new File([back], FILENAME + "-back.jpg", { type: "image/jpeg" }),
+    ];
+  }
+
+  // Phones and tablets: one share sheet with both images ("Save 2 Images").
+  // iPhone Safari can only run one download at a time, so two downloads fail there.
+  const touchDevice = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  function canShareBoth(list) {
+    try { return touchDevice && !!navigator.canShare && navigator.canShare({ files: list }); }
+    catch (e) { return false; }
   }
 
   let debounceId = null;
@@ -659,33 +682,42 @@ const TagEngine = (() => {
     }
   }
 
-  function saveCanvas(c, name) {
-    return new Promise((resolve) => {
-      c.toBlob((blob) => {
-        if (!blob) { resolve(false); return; }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-        resolve(true);
-      }, "image/jpeg", 0.95);
-    });
+  function saveFile(file) {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
 
-  // Front and back download together as two files.
   async function download() {
     if (!ready) return;
+    if (!files) {
+      // Still preparing (a change was just made): finish, then continue.
+      statusEl.textContent = "Preparing files…";
+      await prepareFiles(renderToken);
+      if (!files) { statusEl.textContent = "Something went wrong making the files. Please try again."; return; }
+    }
     logDownload();
-    const okFront = await saveCanvas(canvas, FILENAME + "-front.jpg");
-    await new Promise(r => setTimeout(r, 400)); // gap so browsers allow the second file
-    const okBack = await saveCanvas(canvasBack, FILENAME + "-back.jpg");
-    statusEl.textContent = okFront && okBack
-      ? "Downloaded front and back."
-      : "Something went wrong making the files. Please try again.";
+
+    if (canShareBoth(files)) {
+      try {
+        await navigator.share({ files });
+        statusEl.textContent = "Saved front and back.";
+        return;
+      } catch (e) {
+        if (e && e.name === "AbortError") { statusEl.textContent = ""; return; }
+        // Share not allowed here: fall through to downloads.
+      }
+    }
+
+    saveFile(files[0]);
+    await new Promise(r => setTimeout(r, 600)); // gap so browsers allow the second file
+    saveFile(files[1]);
+    statusEl.textContent = "Downloaded front and back.";
   }
 
   downloadBtn.addEventListener("click", download);
