@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small Works | ACEO Tag Maker</title>
+<meta name="description" content="Make a folding tag for an ACEO or small artwork: title, artist, medium, edition, and a signature panel on the back.">
+<link rel="icon" href="data:,">
+<meta name="theme-color" content="#26231f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page-bg: #efe9df;
+    --panel: #fbf8f3;
+    --ink: #26231f;
+    --muted: #6b645b;
+    --line: #ddd5c8;
+    --accent: #26231f;
+    --accent-ink: #fbf8f3;
+    --heading: #26231f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .topbar { background: #26231f; }
+  .topbar .inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 14px 16px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .wordmark {
+    font-family: Oswald, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: #fbf8f3;
+    text-decoration: none;
+  }
+  .topbar a.home { color: #d8d0c4; font-size: 14px; text-decoration: none; }
+  .topbar a.home:hover, .topbar a.home:focus-visible { text-decoration: underline; }
+  footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--ink); }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  h1 {
+    font-family: Oswald, Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(30px, 6vw, 48px);
+    line-height: 1;
+    margin: 28px 0 8px;
+    color: var(--heading);
+  }
+
+  .intro { margin: 0 0 18px; color: var(--muted); font-size: 15px; line-height: 1.45; max-width: 640px; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .preview canvas + canvas { margin-top: 8px; }
+
+  .preview canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+
+  .preview-note {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 8px 0 0;
+    text-align: center;
+  }
+
+  .group-label {
+    font-family: Oswald, Arial, sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 18px 0 6px;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+
+  label.field {
+    display: block;
+    font-size: 14px;
+    margin: 10px 0;
+  }
+
+  .field small { color: var(--muted); font-size: 12px; }
+
+  input[type="text"], input[type="url"], select {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 11px 12px;
+    font-size: 16px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+
+  input::placeholder { color: #a39a8f; }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 10px; }
+  .choice { position: relative; margin: 0; }
+  .choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .choice span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .choice.swatch span { padding: 8px 12px 8px 8px; }
+  .choice.swatch span::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--dot);
+    border: 1px solid rgba(0,0,0,0.25);
+  }
+  .choice input:checked + span { border-color: var(--accent); font-weight: bold; }
+  .choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .prefill { margin: 4px 0 0; }
+  .prefill[hidden] { display: none; }
+
+  .actions {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #downloadBtn {
+    width: 100%;
+    max-width: 360px;
+    padding: 14px 18px;
+    font-family: Oswald, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #downloadBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #status { min-height: 18px; font-size: 13px; color: var(--muted); margin: 0; text-align: center; }
+
+  @media (max-width: 640px) {
+    main { padding: 0 12px 32px; }
+    h1 { font-size: 26px; margin: 16px 0 6px; }
+    .intro { font-size: 14px; }
+    .card { padding: 10px; }
+    .fields { grid-template-columns: 1fr; }
+    /* Keep the preview in view while typing on phones */
+    .preview {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--panel);
+      margin: -10px -10px 0;
+      padding: 10px 10px 6px;
+      border-radius: 10px 10px 0 0;
+    }
+  }
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="inner">
+    <span class="wordmark">SMALL WORKS</span>
+    <a class="home" href="https://studiowetware.com">Studio Wetware</a>
+  </div>
+</header>
+<main>
+  <h1>Make a tag for your piece</h1>
+  <p class="intro">Fill in your piece's details, pick a layout and color, and download a folding tag. The front holds the details; the back is a line for your signature.</p>
+
+  <div class="card">
+    <div class="preview">
+      <canvas id="canvas" width="5600" height="1600" aria-label="Preview of the front of your tag" role="img"></canvas>
+      <canvas id="canvasBack" width="5600" height="1600" aria-label="Preview of the signature back of your tag" role="img"></canvas>
+      <p class="preview-note">Front and signature back download as two separate files. The back is upside down so it reads the right way once folded.</p>
+    </div>
+
+    <div class="prefill" id="prefill" hidden>
+      <label class="field">Fill in from one of your prints
+        <select id="printPick"><option value="">Choose a print…</option></select>
+      </label>
+    </div>
+
+    <div class="group-label">Layout</div>
+    <div class="choices" role="radiogroup" aria-label="Layout">
+      <label class="choice"><input type="radio" name="layout" value="slab" checked><span>Slab</span></label>
+      <label class="choice"><input type="radio" name="layout" value="museum"><span>Museum label</span></label>
+      <label class="choice"><input type="radio" name="layout" value="ledger"><span>Ledger band</span></label>
+    </div>
+
+    <div class="fields">
+      <div>
+        <div class="group-label">The piece</div>
+        <label class="field">Title
+          <input id="title" type="text" maxlength="40" placeholder="Lavender Nights" autocomplete="off">
+        </label>
+        <label class="field">Artist
+          <input id="artist" type="text" maxlength="30" placeholder="Beach" autocomplete="off">
+        </label>
+        <label class="field">Medium
+          <input id="medium" type="text" maxlength="40" placeholder="Acrylic on card" autocomplete="off">
+        </label>
+      </div>
+      <div>
+        <div class="group-label">Details</div>
+        <label class="field">Size
+          <input id="size" type="text" maxlength="20" placeholder="2.5 × 3.5 in" autocomplete="off">
+        </label>
+        <label class="field">Edition
+          <input id="edition" type="text" maxlength="9" placeholder="01/01" autocomplete="off">
+        </label>
+        <label class="field">Year
+          <input id="year" type="text" maxlength="4" inputmode="numeric" autocomplete="off">
+        </label>
+      </div>
+    </div>
+
+    <div class="group-label">Frame color</div>
+    <div class="choices" id="colors" role="radiogroup" aria-label="Frame color"></div>
+
+    <div class="actions">
+      <button id="downloadBtn" type="button" disabled>Download .JPG</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+  <footer>Small Works is a <a href="https://studiowetware.com">Studio Wetware</a> tool.</footer>
+</main>
+
+<script>
+// Artist tag engine — shared by Small Works and The Cyanotype Network tag makers.
+// Draws a folding tag as two separate panels: the front, and the back signature panel
+// (rotated 180° so it reads upright once the printed tag is folded).
+const TagEngine = (() => {
+  const W = 5600;          // same width as the Beach-Tag
+  const FACE_H = 1600;     // each panel is 3.5 : 1
+
+  // Frame geometry (inside each panel)
+  const PAD_X = 130, PAD_TOP = 110, PAD_BOTTOM = 170;
+  const FACE = { x: PAD_X, y: PAD_TOP, w: W - PAD_X * 2, h: FACE_H - PAD_TOP - PAD_BOTTOM, r: 30 };
+
+  const SANS = "Oswald, 'Arial Narrow', Arial, sans-serif";
+  const PLAIN = "Arial, Helvetica, sans-serif";
+  const SERIF = "'Libre Baskerville', Georgia, 'Times New Roman', serif";
+
+  async function loadFonts() {
+    if (!document.fonts || !document.fonts.load) return;
+    try {
+      await Promise.all([
+        document.fonts.load(`500 100px Oswald`),
+        document.fonts.load(`700 100px Oswald`),
+        document.fonts.load(`400 100px 'Libre Baskerville'`),
+        document.fonts.load(`italic 400 100px 'Libre Baskerville'`),
+        document.fonts.load(`700 100px 'Libre Baskerville'`),
+      ]);
+    } catch (e) { /* fall back to system fonts */ }
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function setSpacing(ctx, px) {
+    if ("letterSpacing" in ctx) ctx.letterSpacing = px + "px";
+  }
+
+  // Largest font size (<= size) that keeps text within maxWidth.
+  function fit(ctx, text, font, size, maxWidth, spacing = 0) {
+    let s = size;
+    for (let i = 0; i < 40; i++) {
+      ctx.font = font(s);
+      setSpacing(ctx, spacing * s);
+      if (!text || ctx.measureText(text).width <= maxWidth) break;
+      s = Math.floor(s * 0.95);
+    }
+    return s;
+  }
+
+  function text(ctx, str, x, y, font, color, align = "left", spacing = 0) {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = "alphabetic";
+    setSpacing(ctx, spacing);
+    ctx.fillText(str || "", x, y);
+    setSpacing(ctx, 0);
+  }
+
+  function qrMatrix(link) {
+    if (!link || typeof qrcode !== "function") return null;
+    try {
+      if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs["UTF-8"]) {
+        qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+      }
+      const q = qrcode(0, "M");
+      q.addData(link);
+      q.make();
+      return q;
+    } catch (e) {
+      return null; // link too long for a QR code
+    }
+  }
+
+  function drawQR(ctx, q, x, y, size, color) {
+    const n = q.getModuleCount();
+    const cell = size / n;
+    ctx.fillStyle = color;
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        if (q.isDark(r, c)) {
+          ctx.fillRect(Math.floor(x + c * cell), Math.floor(y + r * cell), Math.ceil(cell), Math.ceil(cell));
+        }
+      }
+    }
+  }
+
+  function drawBarcode(ctx, x, y, w, h, color) {
+    ctx.fillStyle = color;
+    const pattern = [3, 2, 1, 2, 4, 1, 1, 3, 2, 1, 1, 2, 3, 1, 2, 2, 1, 4, 1, 1, 2, 3, 1, 2];
+    let cx = x, i = 0;
+    while (cx < x + w) {
+      const bar = pattern[i % pattern.length] * 6;
+      const space = pattern[(i + 7) % pattern.length] * 5;
+      ctx.fillRect(cx, y, bar, h);
+      cx += bar + space;
+      i++;
+    }
+  }
+
+  function drawPanel(ctx, c) {
+    ctx.fillStyle = c.frame;
+    roundRect(ctx, 0, 0, W, FACE_H, 30);
+    ctx.fill();
+    ctx.fillStyle = c.face;
+    roundRect(ctx, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r);
+    ctx.fill();
+  }
+
+  function drawTab(ctx, c, brand) {
+    const tw = 1200, th = 230;
+    const tx = (W - tw) / 2, ty = FACE_H - th;
+    ctx.fillStyle = c.tabBg;
+    roundRect(ctx, tx, ty, tw, th + 30, 24);
+    ctx.fill();
+    text(ctx, brand.top, W / 2, ty + 80, `400 62px ${SERIF}`, c.tabInk, "center", 6);
+    const s = fit(ctx, brand.bottom, (px) => `700 ${px}px ${SERIF}`, 118, tw - 120, 0.04);
+    text(ctx, brand.bottom, W / 2, ty + 80 + s * 0.98, `700 ${s}px ${SERIF}`, c.tabInk, "center", s * 0.04);
+  }
+
+  const up = (s) => (s || "").toUpperCase();
+
+  // ---------- Front layouts ----------
+  function frontSlab(ctx, d, c, q) {
+    const left = FACE.x + 110;
+    const right = FACE.x + FACE.w - 110;
+    const top = FACE.y + 70;
+    const qrSize = q ? 600 : 0;
+    const rightCol = q ? right - qrSize - 110 : right;
+
+    // right column
+    const edSize = fit(ctx, up(d.edition), (px) => `${px}px ${PLAIN}`, 230, 1100);
+    const yrSize = fit(ctx, up(d.year), (px) => `${px}px ${PLAIN}`, 230, 1100);
+    ctx.font = `${edSize}px ${PLAIN}`; const edW = ctx.measureText(up(d.edition)).width;
+    ctx.font = `${yrSize}px ${PLAIN}`; const yrW = ctx.measureText(up(d.year)).width;
+    const rightW = Math.max(edW, yrW);
+    text(ctx, up(d.edition), rightCol, top + 200, `${edSize}px ${PLAIN}`, c.ink, "right");
+    text(ctx, up(d.year), rightCol, top + 470, `${yrSize}px ${PLAIN}`, c.ink, "right");
+
+    // left column
+    const maxW = rightCol - rightW - 160 - left;
+    const t = up(d.title), by = d.artist ? "BY: " + up(d.artist) : "";
+    const big = Math.min(
+      fit(ctx, t, (px) => `${px}px ${PLAIN}`, 230, maxW),
+      fit(ctx, by, (px) => `${px}px ${PLAIN}`, 230, maxW));
+    text(ctx, t, left, top + 200, `${big}px ${PLAIN}`, c.ink);
+    text(ctx, by, left, top + 470, `${big}px ${PLAIN}`, c.ink);
+    const med = [up(d.medium), up(d.size)].filter(Boolean).join(" · ");
+    const medSize = fit(ctx, med, (px) => `${px}px ${PLAIN}`, 140, maxW);
+    text(ctx, med, left, top + 700, `${medSize}px ${PLAIN}`, c.soft);
+
+    if (q) drawQR(ctx, q, right - qrSize, top + 20, qrSize, c.ink);
+    drawBarcode(ctx, left, FACE.y + FACE.h - 210, 760, 110, c.ink);
+  }
+
+  function frontMuseum(ctx, d, c, q) {
+    const left = FACE.x + 120;
+    const right = FACE.x + FACE.w - 120;
+    const qrSize = q ? 600 : 0;
+    const midY = FACE.y + FACE.h / 2 - 40;
+
+    // edition block on the right
+    const edBlockRight = q ? right - qrSize - 140 : right;
+    const edSize = fit(ctx, d.edition, (px) => `400 ${px}px ${SERIF}`, 220, 1000);
+    ctx.font = `400 ${edSize}px ${SERIF}`;
+    const edW = Math.max(ctx.measureText(d.edition || "").width, 420);
+    const edCx = edBlockRight - edW / 2;
+    if (d.edition) {
+      text(ctx, "EDITION", edCx, midY - 120, `400 60px ${SERIF}`, c.soft, "center", 18);
+      text(ctx, d.edition, edCx, midY + 140, `400 ${edSize}px ${SERIF}`, c.ink, "center");
+    }
+
+    const maxW = edCx - edW / 2 - 200 - left;
+    const tSize = fit(ctx, d.title, (px) => `italic 400 ${px}px ${SERIF}`, 230, maxW);
+    text(ctx, d.title, left, midY - 60, `italic 400 ${tSize}px ${SERIF}`, c.ink);
+    const by = [d.artist, d.year].filter(Boolean).join(", ");
+    const bySize = fit(ctx, by, (px) => `400 ${px}px ${SERIF}`, 125, maxW);
+    text(ctx, by, left, midY + 130, `400 ${bySize}px ${SERIF}`, c.ink);
+    ctx.fillStyle = c.line;
+    ctx.fillRect(left, midY + 210, Math.min(maxW, 3300), 10);
+    const med = [d.medium, d.size].filter(Boolean).join("  ·  ");
+    const medSize = fit(ctx, med, (px) => `400 ${px}px ${SERIF}`, 92, maxW, 0.04);
+    text(ctx, med, left, midY + 360, `400 ${medSize}px ${SERIF}`, c.soft, "left", medSize * 0.04);
+
+    if (q) drawQR(ctx, q, right - qrSize, FACE.y + (FACE.h - qrSize) / 2 - 40, qrSize, c.ink);
+  }
+
+  function frontLedger(ctx, d, c, q) {
+    const bandW = 1300;
+    ctx.save();
+    roundRect(ctx, FACE.x, FACE.y, FACE.w, FACE.h, FACE.r);
+    ctx.clip();
+    ctx.fillStyle = c.band;
+    ctx.fillRect(FACE.x, FACE.y, bandW, FACE.h);
+    ctx.restore();
+
+    const bx = FACE.x + 120;
+    const midY = FACE.y + FACE.h / 2 - 40;
+    if (d.edition) text(ctx, "EDITION", bx, midY - 230, `500 76px ${SANS}`, c.bandInk, "left", 14);
+    const edSize = fit(ctx, up(d.edition), (px) => `700 ${px}px ${SANS}`, 400, bandW - 240);
+    text(ctx, up(d.edition), bx, midY + 130, `700 ${edSize}px ${SANS}`, c.bandInk);
+    text(ctx, up(d.year), bx, midY + 300, `500 130px ${SANS}`, c.bandInk, "left", 12);
+
+    const qrSize = q ? 600 : 0;
+    const right = FACE.x + FACE.w - 120;
+    const left = FACE.x + bandW + 140;
+    const maxW = (q ? right - qrSize - 140 : right) - left;
+    const t = up(d.title);
+    const tSize = fit(ctx, t, (px) => `700 ${px}px ${SANS}`, 320, maxW);
+    text(ctx, t, left, midY - 30, `700 ${tSize}px ${SANS}`, c.ink);
+    const by = d.artist ? "BY " + up(d.artist) : "";
+    const bySize = fit(ctx, by, (px) => `500 ${px}px ${SANS}`, 160, maxW);
+    text(ctx, by, left, midY + 170, `500 ${bySize}px ${SANS}`, c.ink);
+    const med = [up(d.medium), up(d.size)].filter(Boolean).join(" · ");
+    const medSize = fit(ctx, med, (px) => `500 ${px}px ${SANS}`, 105, maxW, 0.03);
+    text(ctx, med, left, midY + 330, `500 ${medSize}px ${SANS}`, c.soft, "left", medSize * 0.03);
+
+    if (q) drawQR(ctx, q, right - qrSize, FACE.y + (FACE.h - qrSize) / 2 - 40, qrSize, c.ink);
+  }
+
+  // ---------- Back (signature) panel ----------
+  function back(ctx, d, c, layout) {
+    const nameFont = layout === "museum" ? (px) => `400 ${px}px ${SERIF}` : (px) => `700 ${px}px ${SANS}`;
+    const left = FACE.x + 220, right = FACE.x + FACE.w - 220;
+    const sigY = FACE.y + 560;
+    ctx.fillStyle = c.ink;
+    ctx.fillRect(left, sigY, right - left, 12);
+    text(ctx, "ARTIST SIGNATURE", left, sigY + 110, `500 66px ${SANS}`, c.soft, "left", 16);
+
+    const name = layout === "museum" ? (d.artist || "") : up(d.artist);
+    const nSize = fit(ctx, name, nameFont, 150, right - left);
+    text(ctx, name, left, sigY + 380, nameFont(nSize), c.ink);
+    ctx.fillStyle = c.line;
+    ctx.fillRect(left, sigY + 420, right - left, 6);
+    const meta = ["PRINTED NAME", up(d.edition), up(d.year)].filter(Boolean).join("  ·  ");
+    text(ctx, meta, left, sigY + 520, `500 66px ${SANS}`, c.soft, "left", 16);
+  }
+
+  // ---------- Public API ----------
+  function setup(canvas) {
+    canvas.width = W;
+    canvas.height = FACE_H;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, FACE_H);
+    return ctx;
+  }
+
+  // Draws the front onto frontCanvas and the back onto backCanvas.
+  async function render(frontCanvas, backCanvas, data, color, layout, brand) {
+    const q = data.qr ? qrMatrix(data.qr) : null;
+
+    const f = setup(frontCanvas);
+    drawPanel(f, color);
+    if (layout === "museum") frontMuseum(f, data, color, q);
+    else if (layout === "ledger") frontLedger(f, data, color, q);
+    else frontSlab(f, data, color, q);
+    drawTab(f, color, brand);
+
+    // back, rotated so it reads upright after folding
+    const k = setup(backCanvas);
+    k.save();
+    k.translate(W, FACE_H);
+    k.rotate(Math.PI);
+    drawPanel(k, color);
+    back(k, data, color, layout);
+    k.restore();
+
+    return { qrOk: !data.qr || !!q };
+  }
+
+  // Thumbnail of the front panel only, for the log.
+  function thumbnail(canvas, width = 400) {
+    const h = Math.round(width * FACE_H / W);
+    const t = document.createElement("canvas");
+    t.width = width;
+    t.height = h;
+    t.getContext("2d").drawImage(canvas, 0, 0, width, h);
+    return t.toDataURL("image/jpeg", 0.75);
+  }
+
+  return { render, thumbnail, loadFonts };
+})();
+
+</script>
+<script>
+(() => {
+  // Apps Script web app URL (shared Google Sheet). Leave empty to turn logging off.
+  const LOG_URL = "https://script.google.com/macros/s/AKfycbxNZUXl5coLk65ZyorhNfLWH1ve0mpQ89Bd9R-KrhulOBWncMgfgftdVYyjMI_aNV8/exec";
+  const SOURCE = "ACEO";
+  const FILENAME = "small-works-tag"; // base name; "-front.jpg" and "-back.jpg" are added
+  const BRAND = {"top": "STUDIO WETWARE", "bottom": "SMALL WORKS"};
+  const COLORS = {"terracotta": {"name": "Terracotta", "frame": "#c2562f", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#c2562f", "tabInk": "#ffffff", "band": "#a94a28", "bandInk": "#ffffff", "dot": "#c2562f"}, "ochre": {"name": "Ochre", "frame": "#d6a13a", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#a8791f", "tabInk": "#ffffff", "band": "#c4902e", "bandInk": "#26231f", "dot": "#d6a13a"}, "sage": {"name": "Sage", "frame": "#6e8b67", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#6e8b67", "tabInk": "#ffffff", "band": "#5d7857", "bandInk": "#ffffff", "dot": "#6e8b67"}, "plum": {"name": "Plum", "frame": "#6a3d5d", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#6a3d5d", "tabInk": "#ffffff", "band": "#57324c", "bandInk": "#ffffff", "dot": "#6a3d5d"}, "ink": {"name": "Ink", "frame": "#26231f", "face": "#ffffff", "ink": "#26231f", "soft": "#7a736b", "line": "#e7e1d8", "tabBg": "#26231f", "tabInk": "#ffffff", "band": "#3a3631", "bandInk": "#ffffff", "dot": "#26231f"}};
+
+
+
+  const canvas = document.getElementById("canvas");
+  const canvasBack = document.getElementById("canvasBack");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const statusEl = document.getElementById("status");
+  const ids = ["title", "artist", "medium", "size", "edition", "year", "qr"];
+  const fields = {};
+  ids.forEach(id => { const el = document.getElementById(id); if (el) fields[id] = el; });
+  fields.year.value = String(new Date().getFullYear());
+
+  // Build the color swatches
+  const colorsEl = document.getElementById("colors");
+  Object.entries(COLORS).forEach(([key, c], i) => {
+    const label = document.createElement("label");
+    label.className = "choice swatch";
+    label.style.setProperty("--dot", c.dot || c.frame);
+    label.innerHTML = `<input type="radio" name="color" value="${key}"${i === 0 ? " checked" : ""}><span>${c.name}</span>`;
+    colorsEl.appendChild(label);
+  });
+
+  const picked = (name) => (document.querySelector(`input[name="${name}"]:checked`) || {}).value;
+
+  function data() {
+    const d = {};
+    ids.forEach(id => { d[id] = fields[id] ? fields[id].value.trim() : ""; });
+    if (d.qr && !/^https?:\/\/\S+\.\S+/i.test(d.qr)) d.qr = "";
+    return d;
+  }
+
+  let ready = false;
+  let renderToken = 0;
+  let fontsReady = TagEngine.loadFonts();
+
+  async function generate() {
+    const token = ++renderToken;
+    await fontsReady;
+    if (token !== renderToken) return;
+    const result = await TagEngine.render(canvas, canvasBack, data(), COLORS[picked("color")], picked("layout"), BRAND);
+    ready = true;
+    downloadBtn.disabled = false;
+    statusEl.textContent = result.qrOk ? "" : "That link is too long for a QR code. Try a shorter link.";
+  }
+
+  let debounceId = null;
+  function schedule() { clearTimeout(debounceId); debounceId = setTimeout(generate, 120); }
+
+  // ---- logging ----
+  let lastLoggedKey = null;
+  function logDownload() {
+    if (!LOG_URL) return;
+    try {
+      const d = data();
+      const entry = Object.assign({ source: SOURCE, layout: picked("layout"), color: picked("color") }, d);
+      const key = JSON.stringify(entry);
+      if (key === lastLoggedKey) return;
+      lastLoggedKey = key;
+      let timeZone = "";
+      try { timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+      const payload = Object.assign(entry, {
+        language: navigator.language || "",
+        timeZone,
+        thumbnail: TagEngine.thumbnail(canvas),
+      });
+      fetch(LOG_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    } catch (e) {
+      // Logging never blocks the download.
+    }
+  }
+
+  function saveCanvas(c, name) {
+    return new Promise((resolve) => {
+      c.toBlob((blob) => {
+        if (!blob) { resolve(false); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        resolve(true);
+      }, "image/jpeg", 0.95);
+    });
+  }
+
+  // Front and back download together as two files.
+  async function download() {
+    if (!ready) return;
+    logDownload();
+    const okFront = await saveCanvas(canvas, FILENAME + "-front.jpg");
+    await new Promise(r => setTimeout(r, 400)); // gap so browsers allow the second file
+    const okBack = await saveCanvas(canvasBack, FILENAME + "-back.jpg");
+    statusEl.textContent = okFront && okBack
+      ? "Downloaded front and back."
+      : "Something went wrong making the files. Please try again.";
+  }
+
+  downloadBtn.addEventListener("click", download);
+  document.querySelectorAll('input[name="layout"], input[name="color"]').forEach(el => el.addEventListener("change", generate));
+  Object.values(fields).forEach(el => el.addEventListener("input", schedule));
+
+
+
+  generate();
+})();
+</script>
+</body>
+</html>
