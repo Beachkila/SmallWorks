@@ -27,6 +27,7 @@
   }
 
   * { box-sizing: border-box; }
+  html { background: var(--page-bg); }
 
   body {
     margin: 0;
@@ -74,21 +75,6 @@
     color: #fff;
   }
   .sw-header .menu-btn svg { display: block; width: 36px; height: 36px; }
-  .sw-join {
-    display: block;
-    background: #000;
-    color: #fff;
-    border: 1px solid #fff;
-    text-align: center;
-    text-decoration: none;
-    font-family: Jost, 'Century Gothic', Arial, sans-serif;
-    font-size: 17px;
-    letter-spacing: 0.04em;
-    line-height: 1.7;
-    padding: 14px 16px;
-    text-transform: uppercase;
-  }
-  .sw-join:hover, .sw-join:focus-visible { background: #1a1a1a; }
   .sw-menu {
     position: fixed;
     inset: 0;
@@ -123,15 +109,14 @@
     .sw-header .logo img { width: 64px; height: 64px; }
     .sw-header .title { font-size: 24px; }
     .sw-header .title .sub { font-size: 11px; }
-    .sw-join { font-size: 15px; }
   }
-  footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--muted); }
+  footer { text-align: center; margin-top: 24px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); font-size: 13px; color: var(--muted); }
   footer a { color: var(--ink); }
 
   main {
     max-width: 960px;
     margin: 0 auto;
-    padding: 0 16px 40px;
+    padding: 0 16px;
   }
 
   h1 {
@@ -269,7 +254,7 @@
   #status { min-height: 18px; font-size: 13px; color: var(--muted); margin: 0; text-align: center; }
 
   @media (max-width: 640px) {
-    main { padding: 0 12px 32px; }
+    main { padding: 0 12px; }
     h1 { font-size: 26px; margin: 16px 0 6px; }
     .intro { font-size: 14px; }
     .card { padding: 10px; }
@@ -291,28 +276,25 @@
 <body>
 <header class="sw-header">
   <div class="inner">
-    <a class="logo" href="https://studiowetware.com" aria-label="Studio Wetware home"><img src="https://i0.wp.com/studiowetware.com/wp-content/uploads/2026/08/30b31f5c-66ed-4292-89fa-3e65c4eb3958-edited-1.jpeg?w=240&ssl=1" alt="Studio Wetware"></a>
+    <a class="logo" href="./" aria-label="Small Works home"><img src="sw-mark.svg" alt="Small Works"></a>
     <a class="title" href="https://smallworks.studiowetware.com">Small Works<span class="sub">A Studio Wetware project</span></a>
     <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sw-menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 9.5h14M5 14.5h14"/></svg>
     </button>
   </div>
 </header>
-<a class="sw-join" href="https://network.studiowetware.com">Join the conversation<br>login @<br>The Cyanotype Network</a>
 <nav class="sw-menu" id="sw-menu" aria-label="Studio Wetware">
   <button class="close" type="button" aria-label="Close menu">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
   <ul>
     <li><a href="https://studiowetware.com/">Studio Wetware</a></li>
-    <li><a href="https://studiowetware.com/how-cyanotype-works/">Analog</a></li>
-    <li><a href="https://studiowetware.com/gitbeach/">Digital</a></li>
-    <li><a href="https://studiowetware.com/galleries/">Galleries</a></li>
     <li><a href="https://network.studiowetware.com">The Cyanotype Network</a></li>
+    <li><a href="tag-print-template.docx" download>Print template</a></li>
   </ul>
 </nav>
 <main>
-  <h1>Make a tag for your piece</h1>
+  <h1>Make a display tag for your ACEO</h1>
 
   <div class="card">
     <div class="preview">
